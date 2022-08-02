@@ -19,7 +19,7 @@ def SyncronWithCloud():
     pass
 
 
-def WeatherGenerator(): #elevation+(24/180 sin (x)) * steepness 
+def WeatherGenerator(): #elevation+(24/180 sin (x)) * steepness ###temperature follows the pattern of a sin wave
     initialTemp = randint(5,25) # initial temperature
     steepness = randint(4,8) / 10 #random steepness
     sunshine = False
@@ -31,24 +31,50 @@ def WeatherGenerator(): #elevation+(24/180 sin (x)) * steepness
         if hour > 6 and hour < 20: #fixed daytime
             if randint(0,3) < 2:
                 sunshine = True
-                print("duck",hour)
             else: sunshine = False
         else: sunshine = False
         
         weather[hour+1] = [temperature,sunshine] 
         
-    return weather
+    dump = json.dumps(weather)
+    file = open("weather.txt", "w") 
+    file.write(dump)
+    file.close()
+    
         
 """                           ### TEST OK ### returns with keys as hours and values as list: temperature and sunshine
                         x = WeatherGenerator()
                         for key in x:
                             print(key,x[key]) """
 
+def GreenHouseInit():
+    
+    WeatherGenerator()
+    file = open("weather.txt", "r") 
+    weather = json.load(file) #getting back the weather data from the file.
+    file.close()
+    
+    initialtemp = (weather["1"][0])
+    
+    GH = {"LightRelay" : 0, "LightCurrent" : 0,    # Zero means device is off or no signal
+          "FanRelay" : 0, "FanCurrent" : 0,    # Zero means device is off or no signal
+          "OutTemp" : initialtemp, #INT, Outside temperature
+          "InTemp" : 23, #INT, Inside temperature
+          "LightSensor" : 1, # Zero means device is off or no signal
+          "AirHeaterRelay" : 0, "AirHeaterCurrent" : 0, # Zero means device is off or no signal
+          "WaterPumpCurrent" : 1, # Zero means device is off or no signal
+          "WaterHeaterRelay" : 0, "WaterHeaterCurrent" : 0, # Zero means device is off or no signal
+          "WaterTemp" : 20, #INT, Outside temperature
+          "AirPumpCurrent" : 1 # Zero means device is off or no signal
+          }
+    dump = json.dumps(GH)
+    f = open("greenhouse.txt", "w")
+    f.write(dump)
+    f.close()
 
 
 
-
-
+GreenHouseInit()
 
 
 

@@ -1,0 +1,1 @@
+{"LightRelay": 0, "LightCurrent": 0, "FanRelay": 0, "FanCurrent": 0, "OutTemp": 22.0, "InTemp": 23, "LightSensor": 1, "AirHeaterRelay": 0, "AirHeaterCurrent": 0, "WaterPumpCurrent": 1, "WaterHeaterRelay": 0, "WaterHeaterCurrent": 0, "WaterTemp": 20, "AirPumpCurrent": 1}
