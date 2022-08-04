@@ -9,7 +9,10 @@ CurrentDate = 1
 CurrentHour = 1
 Lastsync = 1
 
-def SyncronWithCloud():
+def Clock(): #artifical clock 1min = 1 hour
+    pass
+
+def SyncWithCloud():
     """
     If last sync is not the previous hour(minute in simulation):
     Fetch last sync and sync hour by hour to the current hour.
@@ -17,6 +20,29 @@ def SyncronWithCloud():
     """
     
     pass
+
+def Switches(GH):
+    if GH["InsideTemp"] < 20: 
+        GH["AirHeaterRelay"] = True
+        GH["AirHeaterCurrent"] = True 
+    else:
+        GH["AirHeaterRelay"] = False
+        GH["AirHeaterCurrent"] = False
+        
+    if GH["WaterTemp"] < 15: 
+        GH["WaterHeaterRelay"] = True
+        GH["WaterHeaterCurrent"] = True
+    else:
+        GH["WaterHeaterRelay"] = False
+        GH["WaterHeaterCurrent"] = False  
+    if GH["InsideTemp"] >= 27:
+        GH["FanRelay"] = True
+        GH["FanCurrent"] = True
+        GH["InsideTemp"] = GH["OutsideTemp"] 
+        
+        
+    return GH
+
 
 
 def WeatherGenerator(): #elevation+(24/180 sin (x)) * steepness ###temperature follows the pattern of a sin wave
@@ -47,7 +73,7 @@ def WeatherGenerator(): #elevation+(24/180 sin (x)) * steepness ###temperature f
                         for key in x:
                             print(key,x[key]) """
 
-def GreenHouseInit():
+def GreenHouseInit():#according to plan!!!(figure of collection of variables)
     
     WeatherGenerator()
     file = open("weather.txt", "r") 
@@ -55,46 +81,116 @@ def GreenHouseInit():
     file.close()
     
     initialtemp = (weather["1"][0])
+     
     
-    GH = {"LightRelay" : 0, "LightCurrent" : 0,    # Zero means device is off or no signal
-          "FanRelay" : 0, "FanCurrent" : 0,    # Zero means device is off or no signal
-          "OutTemp" : initialtemp, #INT, Outside temperature
-          "InTemp" : 23, #INT, Inside temperature
-          "LightSensor" : 1, # Zero means device is off or no signal
-          "AirHeaterRelay" : 0, "AirHeaterCurrent" : 0, # Zero means device is off or no signal
-          "WaterPumpCurrent" : 1, # Zero means device is off or no signal
-          "WaterHeaterRelay" : 0, "WaterHeaterCurrent" : 0, # Zero means device is off or no signal
-          "WaterTemp" : 20, #INT, Outside temperature
-          "AirPumpCurrent" : 1 # Zero means device is off or no signal
+    GH = {"LightRelay" : False, "LightCurrent" : False,    
+          "FanRelay" : False, "FanCurrent" : False,    
+          "OutsideTemp" : initialtemp, #float, Outside temperature
+          "InsideTemp" : initialtemp, #float, Inside temperature
+          "LightSensor" : False,
+          "AirHeaterRelay" : False, "AirHeaterCurrent" : False, 
+          "WaterPumpCurrent" : True, 
+          "WaterHeaterRelay" : False, "WaterHeaterCurrent" : False, 
+          "WaterTemp" : 0, 
+          "AirPumpCurrent" : True, 
+          "hour" : 1,
+          "AllSunshine" : 0
           }
+    GH["WaterTemp"] = GH["InsideTemp"] - randint(1,4)
+    
+    if initialtemp >= 27: #Switching off in GreenHouseRun
+        GH["FanRelay"] = True
+        GH["FanCurrent"] = True
+    GH =  Switches(GH)   
+        
+        
     dump = json.dumps(GH)
-    f = open("greenhouse.txt", "w")
-    f.write(dump)
-    f.close()
+    file = open("greenhousecurrent.txt", "w")
+    file.write(dump)
+    file.close()
 
-
-
+"""GreenHouseInit()  ###TEST OK###
 GreenHouseInit()
+file = open("greenhousecurrent.txt", "r") 
+weather = json.load(file) #getting back the weather data from the file.
+file.close()
+for key in weather:
+    print(key,weather[key])
+    """
+
+
+def GreenHouseUpdate(hour):
+    #GreenHouseInit()
+    try:
+        file = open("greenhousecurrent.txt", "r") 
+        GHLast = json.load(file) #getting back the weather data from the file.
+        file.close()
+        
+        file = open("weather.txt", "r") 
+        DailyWeather = json.load(file) #getting back the weather data from the file.
+        file.close() 
+    except:
+        print("missing initial data : greenhousecurrent.txt or weather.txt")
+    
+    
+    GHNew = GHLast.copy() #to be comperable
+    
+    LastRecordedHour = GHLast["hour"]
+    
+    hour = str(hour + 1) 
+    CurrentWeather = DailyWeather[hour] ###LISTLISTLIST
+    
+    GHNew["OutsideTemp"] = CurrentWeather[0]
+    
+    GHNew["LightSensor"] = CurrentWeather[1]
+    
+    GHNew["hour"] = GHLast["hour"] + 1
+    
+    if GHNew["LightSensor"] == True:
+        GHNew["AllSunshine"] += 1
+
+    if CurrentWeather[1] == True:
+        GHNew["InsideTemp"] += 3
+        
+    if GHNew["InsideTemp"] < GHNew["OutsideTemp"] and GHNew["FanRelay"] != True:
+       GHNew["InsideTemp"] += ( GHNew["OutsideTemp"] - GHNew["InsideTemp"]) / 3
+                  
+    if GHLast["WaterHeaterRelay"] == True:
+        GHNew["WaterTemp"] += 3  
+        
+    if GHNew["WaterTemp"] < GHNew["InsideTemp"]:
+        GHNew["WaterTemp"] += ( GHNew["InsideTemp"] - GHNew["WaterTemp"] ) / 3
+        
+        
+
+    GHNew = Switches(GHNew)
+    
+    dump = json.dumps(GHNew)
+    file = open("greenhousecurrent.txt", "w")
+    file.write(dump)
+    file.close()
 
 
 
+""" TEST LOOKS OK -> go to sleep
+GreenHouseInit()
+file = open("greenhousecurrent.txt", "r") 
+weather = json.load(file) #getting back the weather data from the file.
+file.close()
+for key in weather:
+    print(key,weather[key])
+
+GreenHouseUpdate(3)
+file = open("greenhousecurrent.txt", "r") 
+weather = json.load(file) #getting back the weather data from the file.
+file.close()
+for key in weather:
+    print(key,weather[key])
+"""
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def GreenHouseRun():
+    pass
 
 
 
