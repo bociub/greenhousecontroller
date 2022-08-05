@@ -203,7 +203,6 @@ def GreenHouseRun():
 
 
 
-
 """def WeatherGeneratorOLD():#A single day's weather generator
     sunlight = False
     temperature = randint(0,27)
