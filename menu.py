@@ -10,8 +10,8 @@ first test user:
     user id : 6
     """
 tokensdict = {}
-
 LoggedIN = False
+ID = {}
 
 def LogIN(email = "ducky@ducky.com" , pw = "ducky"): #keyword arguments set for test purposes
     global LoggedIN
@@ -36,12 +36,12 @@ def LogIN(email = "ducky@ducky.com" , pw = "ducky"): #keyword arguments set for 
     tokens = tokens.replace("\'", "\"") #replace() to be a valid json format > the sersver's answer
     tokens = json.loads(tokens)  #going to be a python variable
 
-    LoggedIN = True
+    if 'message' in tokens:
+        print(">>>>>> ", tokens["message"] ," <<<<<<<")
+    else:
+        LoggedIN = True
     print("duck432423")
     tokensdict = tokens
-
-    #access_token = tokens["access_token"]
-    #refresh_token = tokens["refresh_token"]
 
 
 def Registration(email = "ducky1@ducky.com" , pw = "ducky1", username = "ducky1"):
@@ -69,9 +69,6 @@ def LogOut():
     LoggedIN = False
     tokensdict = {}
 
-#def LoggedIN():
-#    pass
-#    #cheks if the user logged into the server and returns with true or false
     
 def ReportAnHour():
     pass
@@ -91,6 +88,7 @@ def LogINSub():
     email = input("email: ")
     pw = input("password: ")   
     LogIN(email=email, pw=pw)
+    #error: if the username or the password incorrect then the logged in menu pops up. ehh
     
 def RegSub():
     print("#" * 20) 
@@ -100,7 +98,43 @@ def RegSub():
     email = input("email: ")
     pw = input("password: ")
     Registration(username=username, email=email, pw=pw)
-    
+
+def GetID():    
+    global ID
+    headers = {'Authorization': 'Bearer ' + tokensdict["access_token"]}
+    try:
+        userdict = requests.get('http://localhost:5000/me' ,                              
+                              headers = headers)
+        ID = userdict.json()
+    except requests.exceptions.RequestException as error:
+        print("duck94679")
+        return ("connection failure: ",error) 
+def GHDetails():
+    test1 = {
+    "id": 8,
+    "name": "riverbank",
+    "plant": "staffo",
+    "postcode": "ws345tg",
+    "plantingDate": 2022,
+    "forSale": True,
+    "bookedForSale": True,
+    "energyPlan": 4,
+    "harvestDate": "monday",
+    "counterForAVG": 4,
+    "AVGofAirTemperature": 25,
+    "GivenDaysWeather": 5,
+    "currentParameters": 4
+            }
+
+    headers = {'Authorization': 'Bearer ' + tokensdict["access_token"], 'Content-Type': 'application/json'}
+    try:
+        details = requests.post('http://localhost:5000/greenHouseS' ,                              
+                              headers = headers, json = test1)
+        print(details.json(),"duck37326")
+    except requests.exceptions.RequestException as error:
+        print("duck58079", error)
+        return ("connection failure: ",error) 
+
     
 def MainMenu():
     #global LoggedIN
@@ -112,13 +146,14 @@ def MainMenu():
     print("#" * 20)
     if LoggedIN == False: 
         print("1: Log in to the cloud") 
-        print("2: Register a greenhouse")
+        print("2: Register a new user")
     else: 
         print("3: Log out from the cloud") 
         print("4: Report a specific hour to the server") 
         print("5: Show a specific hour's data") 
-    print("6: reinitializing the greenhouse and the weather") 
-    print("7: Generateing a new 24 hour periods data") 
+        print("6: Declaring initial details of the greenhouse")
+    print("7: reinitializing the greenhouse and the weather") 
+    print("8: Generateing a new 24 hour periods data") 
     choice = read_user_choice()
     if choice == '1':
         LogINSub()
@@ -131,10 +166,11 @@ def MainMenu():
         MainMenu()
     else:
         print("bye")
-  
-MainMenu()
-
-
+LogIN()
+GetID()
+print(type(ID),ID, tokensdict)
+GHDetails()
+    
 
 """
 while True:
@@ -154,4 +190,4 @@ while True:
         delete_car()
     elif choice == '4':
         update_car()
-"""
+        """
