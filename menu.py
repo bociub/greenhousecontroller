@@ -34,7 +34,7 @@ def LogIN(email = "ducky@ducky.com" , pw = "ducky"): #keyword arguments set for 
     
     tokens = str(login.json()) #make sure server's answer a string
     tokens = tokens.replace("\'", "\"") #replace() to be a valid json format > the sersver's answer
-    tokens = json.loads(tokens)  #going to be a python variable
+    tokens = json.loads(tokens)  #going to be a python variable(from string to dict)
 
     if 'message' in tokens:
         print(">>>>>> ", tokens["message"] ," <<<<<<<")
@@ -44,7 +44,7 @@ def LogIN(email = "ducky@ducky.com" , pw = "ducky"): #keyword arguments set for 
     tokensdict = tokens
 
 
-def Registration(email = "ducky1@ducky.com" , pw = "ducky1", username = "ducky1"):
+def Registration(email = "ducky@ducky.com" , pw = "ducky", username = "ducky"):
     email = str(email)
     pw = str(pw) #to be sure it is handled as a string
     username = str(username)
@@ -71,8 +71,20 @@ def LogOut():
 
     
 def ReportAnHour():
-    pass
+    
+    headers = {'Authorization': 'Bearer ' + tokensdict["access_token"]}
+    jsondict = {}
+    jsondict["testtime"] = "2022-08-11 00:03:15.653646"
+    try:
+        userdict = requests.put('http://localhost:5000/me' ,                              
+                              headers = headers ,
+                              json = jsondict )
 
+    except requests.exceptions.RequestException as error:
+        print("duck90979")
+        return ("connection failure: ",error) 
+    
+    
 def read_user_choice(): #stolen function from edube.org.
     ok = False
     while not ok:
@@ -105,10 +117,14 @@ def GetID():
     try:
         userdict = requests.get('http://localhost:5000/me' ,                              
                               headers = headers)
-        ID = userdict.json()
+        
+        
+        ID = userdict.json() #makes a dictionary.
     except requests.exceptions.RequestException as error:
         print("duck94679")
         return ("connection failure: ",error) 
+    except: print("BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    
 def GHDetails():
     test1 = {
     "id": 8,
@@ -166,11 +182,15 @@ def MainMenu():
         MainMenu()
     else:
         print("bye")
+
 LogIN()
 GetID()
-print(type(ID),ID, tokensdict)
-GHDetails()
-    
+#ReportAnHour()
+#GetID()
+
+print(tokensdict)
+print(ID)
+print(type(ID))
 
 """
 while True:
