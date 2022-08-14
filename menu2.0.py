@@ -43,8 +43,12 @@ def LogIN(email = "ducky@ducky.com" , pw = "ducky"): #keyword arguments set for 
     except requests.exceptions.RequestException as error:
 
         LoggedIN = False
-        print("duck123234")
+        
         return ("connection failure: ",error)
+    
+    except Exception as error:
+        print("duck123234", error)
+    
     
     tokens = str(login.json()) #make sure server's answer a string
     tokens = tokens.replace("\'", "\"") #replace() to be a valid json format > the sersver's answer
@@ -56,35 +60,55 @@ def LogIN(email = "ducky@ducky.com" , pw = "ducky"): #keyword arguments set for 
         LoggedIN = True
     print("duck432423")
     tokensdict = tokens
+    print("LogIN" ,login)
+
+def GetID():    
+    global ID
+    headers = {'Authorization': 'Bearer ' + tokensdict["access_token"]}
+    try:
+        userdict = requests.get('http://localhost:5000/me' ,                              
+                              headers = headers)
+        
+        
+        ID = userdict.json() #makes a dictionary.
+    except requests.exceptions.RequestException as error:
+        print("duck94679")
+        return ("connection failure: ",error) 
+    except Exception as error: print("BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", error)
+    print("GetID" ,userdict)
     
 def ModifyUserDB(): # available from the controller only for test purposes
 # variables must be in syncron in the sent data and over there. if not then nothing happens.
     
-    headers = {'Authorization': 'Bearer ' + tokensdict["access_token"]}
+    headers = {'Authorization': 'Bearer ' + tokensdict["access_token"], 'Content-Type': 'application/json'}
     userdict = {}
-    userdict["seedingDate"] = "2022-08-11 00:03:15.12345"
-    userdict["postCode"] = "ws145rj"
-    userdict["energyPlan"] = 6
-    
+    userdict["seedingDate"] = "2022-09-11 00:03:15.12345"
+    userdict["postCode"] = "123123"
+    userdict["energyPlan"] = 5
+
+
     
     
     try:
-        userdict = requests.put('http://localhost:5000/me' ,                              
+        userdict = requests.put('http://localhost:5000/me' ,  #why this variable name?                            
                               headers = headers ,
                               json = userdict )
+        
 
     except requests.exceptions.RequestException as error:
         print("duck90979")
         return ("connection failure: ",error) 
     except: print("quack123234")
     
+    print("ModifyUserDB", userdict)
+    
 def SendRecords(): #/greenHouseS 
-    headers = {'Authorization': 'Bearer ' + tokensdict["access_token"]}
-    ghdict = {}
-    ghdict2 = {}
 
-    ghdict["bookedForSale "] = True
-    ghdict["recordDateTime"] = "2021-01-11 11:03:15.12345"
+    headers = {'Authorization': 'Bearer ' + tokensdict["access_token"], 'Content-Type': 'application/json'}
+    ghdict = {}
+
+    ghdict["bookedForSale"] = True
+    ghdict["recordDateTime"] = '2021-01-11 11:03:15.12345'
     ghdict["LightRelay"] = True
     ghdict["LightCurrent"] = True
     ghdict["FanRelay"] = True
@@ -99,23 +123,28 @@ def SendRecords(): #/greenHouseS
     ghdict["WaterHeaterCurrent"] = True
     ghdict["WaterTemp"] = 234
     ghdict["AirPumpCurrent"] = True
+
     
-    
+
     
     try:
-        userdict = requests.post('http://localhost:5000/greenHouseS' ,                              
+        details = requests.post('http://localhost:5000/greenHouseS' ,                              
                               headers = headers ,
-                              json = ghdict2 )
-        print("quackquack")
+                              json = ghdict )
+
     except requests.exceptions.RequestException as error:
         print("duck44979")
         return ("connection failure: ",error) 
-    except: print("quack123564")
+    except Exception as error:
+        print("quack123564", error)
 
-
+    print("SendRecords:", details)
 
 #Registration()
 LogIN()
-#ModifyUserDB()
+GetID()
+
+ModifyUserDB()
+#
 SendRecords()
-print(tokensdict)
+
