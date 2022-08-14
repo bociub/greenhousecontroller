@@ -93,6 +93,7 @@ def read_user_choice(): #stolen function from edube.org.
         if ok:
             return answer
         print("Bad choice!")  
+        
 def LogINSub():
     print("#" * 20) 
     print("#      Log In      #")
@@ -182,15 +183,15 @@ def MainMenu():
         MainMenu()
     else:
         print("bye")
-
-LogIN()
-GetID()
+#Registration()
+#LogIN()
+#etID()
 #ReportAnHour()
 #GetID()
 
-print(tokensdict)
-print(ID)
-print(type(ID))
+#print(tokensdict)
+#print(ID)
+#print(type(ID))
 
 """
 while True:
