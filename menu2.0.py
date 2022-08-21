@@ -1,5 +1,5 @@
 
-import GreenHouseController
+from GreenHouseController2 import GreenHouseRun
 import requests
 import json
 
@@ -47,7 +47,7 @@ def LogIN(email = "ducky@ducky.com" , pw = "ducky"): #keyword arguments set for 
         return ("connection failure: ",error)
     
     except Exception as error:
-        print("duck123234", error)
+        return ("duck123234", error)
     
     
     tokens = str(login.json()) #make sure server's answer a string
@@ -55,7 +55,7 @@ def LogIN(email = "ducky@ducky.com" , pw = "ducky"): #keyword arguments set for 
     tokens = json.loads(tokens)  #going to be a python variable(from string to dict)
 
     if 'message' in tokens:
-        print(">>>>>> ", tokens["message"] ," <<<<<<<")
+        return (">>>>>> ", tokens["message"] ," <<<<<<<")
     else:
         LoggedIN = True
     print("duck432423")
@@ -102,7 +102,7 @@ def ModifyUserDB(): # available from the controller only for test purposes
     
     print("ModifyUserDB", userdict)
     
-def SendRecords(): #/greenHouseS 
+def SendRecordsOld(): #/greenHouseS 
 
     headers = {'Authorization': 'Bearer ' + tokensdict["access_token"], 'Content-Type': 'application/json'}
     ghdict = {}
@@ -140,11 +140,80 @@ def SendRecords(): #/greenHouseS
 
     print("SendRecords:", details)
 
-#Registration()
-LogIN()
-GetID()
+def SendRecords(ghdict):
+    headers = {'Authorization': 'Bearer ' + tokensdict["access_token"], 'Content-Type': 'application/json'}
+    
+    try:
+        details = requests.post('http://localhost:5000/greenHouseS' ,                              
+                              headers = headers ,
+                              json = ghdict )
 
-ModifyUserDB()
-#
-SendRecords()
+    except requests.exceptions.RequestException as error:
+        print("duck44979")
+        return ("connection failure: ",error) 
+    except Exception as error:
+        print("quack123564", error)
 
+    print("SendRecords:", details)
+    
+    
+def read_user_choice(): #stolen function from edube.org.
+    ok = False
+    while not ok:
+        answer = input("Enter your choice (0..4): ")
+        ok = answer in [ '1', '2', '3', '4']
+        if ok:
+            return answer
+        print("Bad choice!")
+        
+def LogINSub():
+    print("#" * 20) 
+    print("#      Log In      #")
+    print("#" * 20)
+    email = input("email: ")
+    pw = input("password: ")   
+    LogIN(email=email, pw=pw)  
+
+def LogOutSub():
+    global LoggedIN
+    global tokensdict
+    LoggedIN = False
+    tokensdict = {} 
+
+def ClearDB():
+    pass # it sould mbe impleneted for data to be presentable
+def SendDataSub(days):
+    data = GreenHouseRun(days)
+    print("#" * 20) 
+    print("#    SEND DATA    #")
+    print("#" * 20)    
+        
+        
+def MainMenu():
+    print("#" * 20) 
+    print("#    MAIN MENU     #")
+    print("#" * 20)
+    if LoggedIN == False: 
+        print("1: Log in to the cloud") 
+        
+    else:
+        print("2: Log out from the cloud") 
+        print("3: Send data to cloud")
+    print("4: Exit")    
+        
+    choice = read_user_choice()    
+    if choice == '1':
+        LogINSub()
+        MainMenu()
+    if choice == '2':
+        LogOutSub()
+        MainMenu()        
+    if choice == '3':
+        SendDataSub()
+        MainMenu()
+         
+    if choice == '4':
+        return None
+        
+        
+MainMenu()
