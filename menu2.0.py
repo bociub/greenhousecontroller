@@ -107,8 +107,8 @@ def SendRecordsOld(): #/greenHouseS
     headers = {'Authorization': 'Bearer ' + tokensdict["access_token"], 'Content-Type': 'application/json'}
     ghdict = {}
 
-    ghdict["bookedForSale"] = True
-    ghdict["recordDateTime"] = '2021-01-11 11:03:15.12345'
+
+    ghdict["recordDateTime"] = 'fro,mold'
     ghdict["LightRelay"] = True
     ghdict["LightCurrent"] = True
     ghdict["FanRelay"] = True
@@ -123,7 +123,7 @@ def SendRecordsOld(): #/greenHouseS
     ghdict["WaterHeaterCurrent"] = True
     ghdict["WaterTemp"] = 234
     ghdict["AirPumpCurrent"] = True
-
+    print(ghdict)
     
 
     
@@ -138,11 +138,11 @@ def SendRecordsOld(): #/greenHouseS
     except Exception as error:
         print("quack123564", error)
 
-    print("SendRecords:", details)
+    print("SendRecordsDebugfromold:", details)
 
 def SendRecords(ghdict):
     headers = {'Authorization': 'Bearer ' + tokensdict["access_token"], 'Content-Type': 'application/json'}
-    
+    print(ghdict)
     try:
         details = requests.post('http://localhost:5000/greenHouseS' ,                              
                               headers = headers ,
@@ -154,7 +154,7 @@ def SendRecords(ghdict):
     except Exception as error:
         print("quack123564", error)
 
-    print("SendRecords:", details)
+    print("SendRecordsDebug:", details) #details.text for full error report
     
     
 def read_user_choice(): #stolen function from edube.org.
@@ -182,12 +182,68 @@ def LogOutSub():
 
 def ClearDB():
     pass # it sould mbe impleneted for data to be presentable
-def SendDataSub(days):
-    data = GreenHouseRun(days)
+def SendDataSub():
+    count = 0
     print("#" * 20) 
     print("#    SEND DATA    #")
-    print("#" * 20)    
+    print("#" * 20)  
+    answer = input("How many days need to be gneretad(1-100):")
+    try:
+        answer = int(answer)
+    except: 
+        print("error, your answer should be a single number.")
+        SendDataSub()
+    data = GreenHouseRun(answer)  
+
+    for dkey in data:
+        count += 1
+        for hkey in data[dkey]:
+            del data[dkey][hkey]["weather"] #NOT IMPLEMENTED YET            
+    print(count, "day(s) generated.")
+    answer2 = input("How many days need to be sent automatically:")
+    try:
+        answer2 = int(answer2)        
+    except: 
+        print("error, your answer should be a single number.")
+        SendDataSub()
+    if answer2 > answer: 
+        print("error, your answer should be less than generated days")
+        SendDataSub()
+    for i in range(answer2):
+        for key in data[i+1]:
+            data[i+1][key]["recordDateTime"] = str(i+1) + "," + str(key)          
+            SendRecords(data[i+1][key])
+            print(key, "hours and ", i , "days are sent. \r")#print \r
+    left = answer - answer2
+    print(left," days left for sending. \r")
+    answer3 = input("Send next day(n), send all remaing days(s), quit(q):")
+    if answer3 == "n":
+        nextday = answer-left
+
+        for key in data[nextday]:
+            data[nextday][key]["recordDateTime"] = str(nextday) + "," + str(key)          
+            SendRecords(data[nextday][key])
+            print(nextday, "-th is sent sent.")#print \r 
+            
+        left -+ 1
+        #MainMenu()
+    elif answer3 == "s":
+        nextday = answer-left
+        for i in range(left,answer):
+            for key in data[i+1]:
+                data[i+1][key]["recordDateTime"] = str(i+1) + "," + str(key)          
+                SendRecords(data[i+1][key])
+                print(key, "hours and ", i , "days are sent. \r")#print \r
         
+    elif answer3 == "q":
+        MainMenu()
+    else:
+        print("Bad choice!")    
+        print(left," days left for sending.")
+        answer3 = input("Send next day(n), send remaing days(s), quit(q):")        
+        
+    
+    
         
 def MainMenu():
     print("#" * 20) 
@@ -214,6 +270,9 @@ def MainMenu():
          
     if choice == '4':
         return None
-        
-        
+#Registration()        
+LogIN() 
+print(tokensdict)  
+#ModifyUserDB()     
 MainMenu()
+

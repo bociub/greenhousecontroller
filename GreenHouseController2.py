@@ -9,10 +9,10 @@ energyPlan = 0
 
 def Switches(GH,energyPlan = energyPlan):
     if GH["InsideTemp"] < 20: 
-        GH["AirHeaterRelay"] = True
+        GH["AirheaterRelay"] = True
         GH["AirHeaterCurrent"] = True 
     else:
-        GH["AirHeaterRelay"] = False
+        GH["AirheaterRelay"] = False
         GH["AirHeaterCurrent"] = False
         
     if GH["WaterTemp"] < 15: 
@@ -65,8 +65,8 @@ def GreenHouseInit():#according to plan!!!(figure of collection of variables)
           "FanRelay" : False, "FanCurrent" : False,    
           "OutsideTemp" : initialtemp, #float, Outside temperature
           "InsideTemp" : initialtemp, #float, Inside temperature
-          "LightSensor" : False,
-          "AirHeaterRelay" : False, "AirHeaterCurrent" : False, 
+          "Lightsensor" : False,
+          "AirheaterRelay" : False, "AirHeaterCurrent" : False, 
           "WaterPumpCurrent" : True, 
           "WaterHeaterRelay" : False, "WaterHeaterCurrent" : False, 
           "WaterTemp" : 0, 
