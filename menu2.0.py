@@ -21,11 +21,13 @@ def Registration(email = "ducky@ducky.com" , pw = "ducky", username = "ducky"): 
                               headers= {'Content-Type': 'application/json'},
                               json = jsondict)
         print("Message from the server:")
-        print(signup.json())
+        print(signup)
         print()
     except requests.exceptions.RequestException as error:
         print("duck94859")
-        return ("connection failure: ",error)
+
+
+
 
 def LogIN(email = "ducky@ducky.com" , pw = "ducky"): #keyword arguments set for test purposes
     global LoggedIN
@@ -49,7 +51,7 @@ def LogIN(email = "ducky@ducky.com" , pw = "ducky"): #keyword arguments set for 
     except Exception as error:
         return ("duck123234", error)
     
-    
+    #if returns 500 as login then crashes here.
     tokens = str(login.json()) #make sure server's answer a string
     tokens = tokens.replace("\'", "\"") #replace() to be a valid json format > the sersver's answer
     tokens = json.loads(tokens)  #going to be a python variable(from string to dict)
@@ -220,7 +222,8 @@ def SendDataSub():
     if answer3 == "n":
         nextday = answer-left
 
-        for key in data[nextday]:
+        for key in data[nextday]: #shit as it is. + function need to be implemeted to sending one by one and for all remaining.
+        
             data[nextday][key]["recordDateTime"] = str(nextday) + "," + str(key)          
             SendRecords(data[nextday][key])
             print(nextday, "-th is sent sent.")#print \r 
@@ -257,7 +260,8 @@ def MainMenu():
         print("3: Send data to cloud")
     print("4: Exit")    
         
-    choice = read_user_choice()    
+    choice = read_user_choice() 
+    print("ok123")
     if choice == '1':
         LogINSub()
         MainMenu()
@@ -270,9 +274,10 @@ def MainMenu():
          
     if choice == '4':
         return None
-#Registration()        
+#Registration(email = "test@ducky.com" , pw = "test", username = "test")        
 LogIN() 
-print(tokensdict)  
-#ModifyUserDB()     
+#print(tokensdict)  
+##ModifyUserDB()   
+#print("ok432")  
 MainMenu()
 

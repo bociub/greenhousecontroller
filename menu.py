@@ -184,7 +184,7 @@ def MainMenu():
     else:
         print("bye")
 #Registration()
-#LogIN()
+LogIN()
 #etID()
 #ReportAnHour()
 #GetID()
